@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vocabularies and Sentence Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Yusei+Magic&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables & Theme */
+        :root {
+            --fn-blue: #2bb0fc;
+            --fn-dark-blue: #0f4c81;
+            --fn-purple: #903df3;
+            --fn-yellow: #f9ed39;
+            --fn-green: #92d050;
+            --fn-red: #ff3333;
+            --fn-black: #1a1a1a;
+            --border-thick: 4px solid var(--fn-black);
+            --shadow-thick: 4px 4px 0px var(--fn-black);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Balsamiq Sans', 'Comic Sans MS', sans-serif;
+            background: radial-gradient(circle at center, #59c2ff 0%, #1e62a3 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .title-font {
+            font-family: 'Yusei Magic', 'Comic Sans MS', sans-serif;
+            text-transform: uppercase;
+            -webkit-text-stroke: 0.5px var(--fn-black);
+            color: white;
+            text-shadow: 1px 1px 0px var(--fn-black);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Main Container */
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 800px) {
+            #game-container {
+                height: 95vh;
+                border-radius: 20px;
+                border: var(--border-thick);
+            }
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-size: cover;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* UI Elements */
+        .fn-box {
+            background-color: var(--fn-blue);
+            border: var(--border-thick);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow-thick);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 0px black;
+        }
+
+        .fn-input {
+            width: 100%;
+            padding: 10px;
+            font-family: 'Balsamiq Sans', sans-serif;
+            font-size: 1.2rem;
+            border: 3px solid var(--fn-black);
+            border-radius: 8px;
+            outline: none;
+        }
+        
+        .fn-input:focus {
+            border-color: var(--fn-yellow);
+        }
+
+        .fn-btn {
+            font-family: 'Yusei Magic', sans-serif;
+            background-color: var(--fn-yellow);
+            color: var(--fn-black);
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: var(--border-thick);
+            border-radius: 8px;
+            box-shadow: var(--shadow-thick);
+            cursor: pointer;
+            transform: skew(-3deg);
+            transition: all 0.1s ease;
+            margin: 10px;
+            text-transform: uppercase;
+        }
+
+        .fn-btn:hover {
+            transform: skew(-3deg) scale(1.05);
+        }
+
+        .fn-btn:active {
+            transform: skew(-3deg) scale(0.95);
+            box-shadow: 0px 0px 0px var(--fn-black);
+            transform: translateY(4px);
+        }
+
+        .fn-btn:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 4px 4px 0px #666;
+        }
+
+        .btn-green { background-color: var(--fn-green); color: white; -webkit-text-stroke: 1px black; }
+        .btn-blue { background-color: var(--fn-blue); color: white; -webkit-text-stroke: 1px black;}
+        .btn-red { background-color: var(--fn-red); color: white; -webkit-text-stroke: 1px black;}
+        
+        /* Audio Toggle */
+        #audio-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            background: white;
+            border: 2px solid black;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+        }
+
+        /* Review Cards */
+        #review-card {
+            background: white;
+            color: black;
+            border: var(--border-thick);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            height: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            box-shadow: var(--shadow-thick);
+            position: relative;
+        }
+
+        .vocab-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Fallback for missing images offline */
+        .img-fallback {
+            width: 200px;
+            height: 200px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            background-color: #eee;
+            border: 2px dashed #999;
+            border-radius: 10px;
+        }
+
+        .vocab-word {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .pronounce-btn {
+            background: var(--fn-purple);
+            color: white;
+            border: 2px solid black;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 2px 2px 0px black;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Gameplay UI */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 60px 15px 15px; /* right padding for audio toggle */
+            background: rgba(0,0,0,0.5);
+            border-bottom: 3px solid black;
+        }
+
+        .stat-box {
+            font-family: 'Balsamiq Sans', sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            background: white;
+            color: black;
+            padding: 5px 15px;
+            border: 2px solid black;
+            border-radius: 20px;
+            box-shadow: 2px 2px 0px black;
+        }
+
+        .score-text {
+            font-family: 'Balsamiq Sans', sans-serif !important;
+            -webkit-text-stroke: 0 !important;
+            text-shadow: 2px 2px 0px var(--fn-black) !important;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 1.2em;
+        }
+
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 60px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .question-box {
+            font-size: 3rem;
+            background: var(--fn-dark-blue);
+            padding: 15px 30px;
+            border: var(--border-thick);
+            border-radius: 10px;
+            box-shadow: var(--shadow-thick);
+            margin: 20px 0;
+            letter-spacing: 2px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .l2-question {
+            font-size: 2rem;
+            letter-spacing: normal;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .option-btn {
+            background: white;
+            color: black;
+            border: 3px solid black;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            font-family: 'Balsamiq Sans', sans-serif;
+            font-weight: bold;
+            padding: 10px 20px;
+            min-width: 60px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px black;
+            transition: all 0.1s;
+        }
+        
+        .option-btn.selected {
+            background: var(--fn-yellow);
+            transform: scale(1.1);
+        }
+
+        .send-container {
+            margin-top: 30px;
+            height: 70px;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .shake { animation: shake 0.4s; }
+        .pop { animation: pop 0.4s; }
+        
+        .feedback-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            font-family: 'Yusei Magic', sans-serif;
+            -webkit-text-stroke: 3px black;
+            display: none;
+            z-index: 50;
+            text-shadow: 2px 2px 0px black;
+        }
+    </style>
+    <script>
+        // Define image fallback handler early so inline onerror can use it during initial DOM parsing
+        function imageError(imgElement) {
+            imgElement.style.display = 'none';
+            const fallback = imgElement.nextElementSibling;
+            if(fallback && fallback.classList.contains('img-fallback')) {
+                fallback.style.display = 'flex';
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Audio Toggle -->
+    <div id="audio-toggle" onclick="toggleAudio()">🔊</div>
+
+    <!-- Screen 1: Login -->
+    <div id="screen-login" class="screen active">
+        <h1>Vocabulary Challenge!</h1>
+        <div class="fn-box">
+            <h2>Player Info</h2>
+            <div class="input-group">
+                <label>Code:</label>
+                <input type="text" id="in-code" class="fn-input" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Class:</label>
+                <input type="text" id="in-class" class="fn-input" placeholder="e.g. 5A" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Number:</label>
+                <input type="number" id="in-number" class="fn-input" placeholder="e.g. 12" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Name:</label>
+                <input type="text" id="in-name" class="fn-input" placeholder="Your Name" autocomplete="off">
+            </div>
+            <p id="login-error" style="color: var(--fn-yellow); font-family: 'Balsamiq Sans', sans-serif; font-weight: bold; text-shadow: 2px 2px 0px var(--fn-black); display: none; margin-bottom: 15px; font-size: 1.1rem;"></p>
+            <button class="fn-btn btn-green" onclick="submitLogin()">START</button>
+        </div>
+    </div>
+
+    <!-- Screen 2: Review Cards -->
+    <div id="screen-review" class="screen">
+        <h2>Vocabulary Review</h2>
+        <div id="review-card">
+            <img id="rev-img" class="vocab-img" alt="vocab image" onerror="imageError(this)">
+            <div id="rev-img-fallback" class="img-fallback">🖼️</div>
+            <div id="rev-word" class="vocab-word">word</div>
+            <button class="pronounce-btn" onclick="pronounceWord()">📢</button>
+        </div>
+        <div class="nav-buttons" id="rev-nav-normal">
+            <button class="fn-btn btn-blue" onclick="changeCard(-1)">Prev</button>
+            <button class="fn-btn btn-blue" onclick="changeCard(1)">Next</button>
+        </div>
+        <div class="nav-buttons" id="rev-nav-end" style="display: none;">
+            <button class="fn-btn btn-blue" onclick="replayCards()">Replay</button>
+            <button class="fn-btn btn-green" onclick="startLevel1Intro()">Proceed</button>
+        </div>
+    </div>
+
+    <!-- Screen 3: L1 Intro -->
+    <div id="screen-l1-intro" class="screen">
+        <h1>LEVEL 1</h1>
+        <div class="fn-box">
+            <h2>Missing Letter</h2>
+            <p>1. Look at the picture and word.<br>2. Find the missing letter.<br>3. Answer fast for a high score!<br>4. You need 75 points to pass.</p>
+            <button class="fn-btn btn-green" onclick="startLevel(1)">PLAY LEVEL 1</button>
+        </div>
+    </div>
+
+    <!-- Screen 4: Gameplay L1 -->
+    <div id="screen-l1-game" class="screen">
+        <div class="top-bar">
+            <div class="stat-box" id="l1-progress">Q: 1/20</div>
+            <div class="stat-box" id="l1-timer">⏱️ 120s</div>
+            <div class="stat-box" id="l1-score-display">Score: 100</div>
+        </div>
+        <div class="game-content">
+            <img id="l1-img" class="vocab-img" alt="vocab" onerror="imageError(this)">
+            <div id="l1-img-fallback" class="img-fallback">🖼️</div>
+            
+            <div id="l1-question" class="question-box">s_udent</div>
+            <div id="l1-options" class="options-grid">
+                <!-- Options populated by JS -->
+            </div>
+            <div class="send-container">
+                <button id="l1-send-btn" class="fn-btn btn-green" disabled onclick="submitAnswer(1)">SEND</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 5: L1 Result -->
+    <div id="screen-l1-result" class="screen">
+        <h1 id="l1-result-title" style="font-size: 5rem;">PASS!</h1>
+        <div class="fn-box">
+            <h2>Score: <span id="l1-final-score" class="score-text">100</span></h2>
+            <p id="l1-result-msg">Great job!</p>
+            <button class="fn-btn btn-blue" onclick="startLevel(1)">Play Again</button>
+            <button id="btn-next-l2" class="fn-btn btn-green" onclick="startLevel2Intro()">Next</button>
+        </div>
+    </div>
+
+    <!-- Screen 6: L2 Intro -->
+    <div id="screen-l2-intro" class="screen">
+        <h1>LEVEL 2</h1>
+        <div class="fn-box">
+            <h2>Fill in the Blank</h2>
+            <p>1. Read the sentence.<br>2. Pick the missing word(s).<br>3. Answer fast for a high score!<br>4. You need 75 points to pass.</p>
+            <button class="fn-btn btn-green" onclick="startLevel(2)">PLAY LEVEL 2</button>
+        </div>
+    </div>
+
+    <!-- Screen 7: Gameplay L2 -->
+    <div id="screen-l2-game" class="screen">
+        <div class="top-bar">
+            <div class="stat-box" id="l2-progress">Q: 1/20</div>
+            <div class="stat-box" id="l2-timer">⏱️ 120s</div>
+            <div class="stat-box" id="l2-score-display">Score: 100</div>
+        </div>
+        <div class="game-content">
+            <img id="l2-img" class="vocab-img" alt="vocab" onerror="imageError(this)" style="width: 150px; height: 150px;">
+            <div id="l2-img-fallback" class="img-fallback" style="width: 150px; height: 150px; font-size: 4rem;">🖼️</div>
+            
+            <div id="l2-question" class="question-box l2-question">Are you a ____?</div>
+            <div id="l2-options" class="options-grid">
+                <!-- Options populated by JS -->
+            </div>
+            <div class="send-container">
+                <button id="l2-send-btn" class="fn-btn btn-green" disabled onclick="submitAnswer(2)">SEND</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 8: L2 Result -->
+    <div id="screen-l2-result" class="screen">
+        <h1 id="l2-result-title" style="font-size: 5rem;">PASS!</h1>
+        <div class="fn-box">
+            <h2>Score: <span id="l2-final-score" class="score-text">100</span></h2>
+            <p id="l2-result-msg">Awesome!</p>
+            <button class="fn-btn btn-blue" onclick="startLevel(2)">Try Again</button>
+            <button id="btn-final-done" class="fn-btn btn-green" onclick="showFinalScreen()">Next</button>
+        </div>
+    </div>
+
+    <!-- Screen 9: Final Report -->
+    <div id="screen-final" class="screen">
+        <h1>VICTORY ROYALE!</h1>
+        <div class="fn-box">
+            <h2>Final Report</h2>
+            <p style="font-size: 1.2rem;">Player: <span id="final-name" style="color:var(--fn-yellow)"></span></p>
+            <p>Level 1 Score: <span id="final-l1" class="score-text"></span></p>
+            <p>Level 2 Score: <span id="final-l2" class="score-text"></span></p>
+            <h2 style="color:var(--fn-yellow)">Total Score: <span id="final-total" class="score-text"></span></h2>
+            <button class="fn-btn btn-blue" onclick="resetGame()">Play Again</button>
+            <button class="fn-btn btn-green" onclick="submitToGoogleSheets()">Done!</button>
+        </div>
+    </div>
+    
+    <!-- Screen 10: Thanks -->
+    <div id="screen-thanks" class="screen">
+        <h1>DATA SAVED!</h1>
+        <div class="fn-box">
+            <h2>Thanks for playing!</h2>
+            <p>You can safely close this window.</p>
+        </div>
+    </div>
+
+    <!-- Global Feedback Overlay -->
+    <div id="feedback-txt" class="feedback-overlay"></div>
+</div>
+
+<script>
+    /* ==========================================
+       CONFIGURATION & DATA
+       ========================================== */
+    // --> PASTE YOUR GOOGLE APPS SCRIPT URL HERE <--
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwa8aKH1nUbvbvXhAIqqkdMvj3Wt1UYFjye0HdCwFZguoEnGbwUoMacnfm08jBOmS427Q/exec"; 
+
+   // Vocabulary Data
+const vocabData = [
+    { word: "bears", pronoun: "they", img: "bears.png", emoji: "🐻" },
+    { word: "lions", pronoun: "they", img: "lions.png", emoji: "🦁" },
+    { word: "monkeys", pronoun: "they", img: "monkeys.png", emoji: "🐒" },
+    { word: "tigers", pronoun: "they", img: "tigers.png", emoji: "🐯" },
+    { word: "zebras", pronoun: "they", img: "zebras.png", emoji: "🦓" }
+];
+
+// Sentence Data
+const sentenceData = [
+    { q: "____ you like bears?", options: ["Are", "Is", "Do", "Does"], ans: "Do", img: "bears.png", emoji: "🐻" },
+    { q: "Do you ____ bears?", options: ["likes", "like", "liking", "liked"], ans: "like", img: "bears.png", emoji: "🐻" },
+    { q: "Do you like ____?", options: ["bear", "bears", "a bear", "the bear"], ans: "bears", img: "bears.png", emoji: "🐻" },
+    { q: "Do you like bears? Yes, ____ do.", options: ["I", "he", "she", "it"], ans: "I", img: "bears.png", emoji: "🐻" },
+    { q: "Do you like bears? Yes, I ____.", options: ["am", "do", "does", "don't"], ans: "do", img: "bears.png", emoji: "🐻" },
+    { q: "Do you like bears? No, I ____. I like tigers.", options: ["doesn't", "am not", "don't", "didn't"], ans: "don't", img: "bears.png", emoji: "🐻" },
+    { q: "No, I don't. I like ____.", options: ["tiger", "tigers", "a tiger", "the tiger"], ans: "tigers", img: "tigers.png", emoji: "🐯" },
+    { q: "Do you like ____?", options: ["lions", "lion", "a lions", "the lions"], ans: "lions", img: "lions.png", emoji: "🦁" },
+    { q: "Do you like lions? ____, I do.", options: ["Yes", "No", "Is", "Are"], ans: "Yes", img: "lions.png", emoji: "🦁" },
+    { q: "Do you like lions? Yes, I ____.", options: ["do", "does", "am", "is"], ans: "do", img: "lions.png", emoji: "🦁" },
+    { q: "Do you like lions? No, I ____. I like monkeys.", options: ["don't", "doesn't", "do", "am"], ans: "don't", img: "lions.png", emoji: "🦁" },
+    { q: "No, I don't. I like ____.", options: ["monkey", "monkeys", "a monkey", "the monkey"], ans: "monkeys", img: "monkeys.png", emoji: "🐒" },
+    { q: "____ you like monkeys?", options: ["Does", "Is", "Are", "Do"], ans: "Do", img: "monkeys.png", emoji: "🐒" },
+    { q: "Do you like monkeys? No, I ____.", options: ["doesn't", "don't", "do", "am not"], ans: "don't", img: "monkeys.png", emoji: "🐒" },
+    { q: "Do you like monkeys? No, I don't. I like ____.", options: ["zebra", "a zebra", "zebras", "the zebra"], ans: "zebras", img: "zebras.png", emoji: "🦓" },
+    { q: "Do you like ____?", options: ["tigers", "tiger", "a tigers", "the tiger"], ans: "tigers", img: "tigers.png", emoji: "🐯" },
+    { q: "Do you like tigers? ____, I do.", options: ["Yes", "No", "Does", "Do"], ans: "Yes", img: "tigers.png", emoji: "🐯" },
+    { q: "Do you like tigers? Yes, I ____.", options: ["don't", "does", "do", "am"], ans: "do", img: "tigers.png", emoji: "🐯" },
+    { q: "____ you like zebras?", options: ["Does", "Are", "Is", "Do"], ans: "Do", img: "zebras.png", emoji: "🦓" },
+    { q: "Do you like zebras? Yes, I ____.", options: ["do", "does", "am", "is"], ans: "do", img: "zebras.png", emoji: "🦓" }
+];
+
+    /* ==========================================
+       STATE VARIABLES
+       ========================================== */
+    let player = { code: "", class: "", number: "", name: "" };
+    let scores = { l1: 0, l2: 0 };
+    let currentCardIndex = 0;
+    
+    let isSubmitting = false;
+
+    let gameState = {
+        level: 1,
+        questions: [],
+        currentIndex: 0,
+        score: 100,
+        time: 120,
+        timerInterval: null,
+        selectedOption: null,
+        correctCount: 0
+    };
+
+    let soundEnabled = true;
+    const bgm = new Audio('bgm.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.2;
+
+    /* ==========================================
+       AUDIO SYSTEM (Offline Web Audio API)
+       ========================================== */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function toggleAudio() {
+        soundEnabled = !soundEnabled;
+        document.getElementById('audio-toggle').innerText = soundEnabled ? '🔊' : '🔇';
+        if (soundEnabled) {
+            bgm.play().catch(e => console.log("BGM play started"));
+        } else {
+            bgm.pause();
+        }
+    }
+
+    function playTone(freq, type, duration, vol=0.1) {
+        if(!soundEnabled) return;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sound = {
+        click: () => playTone(600, 'sine', 0.1),
+        correct: () => {
+            playTone(523.25, 'sine', 0.1); // C5
+            setTimeout(() => playTone(659.25, 'sine', 0.1), 100); // E5
+            setTimeout(() => playTone(783.99, 'sine', 0.2), 200); // G5
+        },
+        wrong: () => {
+            playTone(150, 'sawtooth', 0.3, 0.2);
+            setTimeout(() => playTone(100, 'sawtooth', 0.3, 0.2), 150);
+        },
+        win: () => {
+            playTone(440, 'square', 0.2);
+            setTimeout(() => playTone(554.37, 'square', 0.2), 200);
+            setTimeout(() => playTone(659.25, 'square', 0.4), 400);
+        },
+        fail: () => {
+            playTone(300, 'triangle', 0.3);
+            setTimeout(() => playTone(250, 'triangle', 0.3), 300);
+            setTimeout(() => playTone(200, 'triangle', 0.6), 600);
+        }
+    };
+
+    // Text to Speech
+    function pronounceWord() {
+        if(!soundEnabled || !window.speechSynthesis) return;
+        const text = vocabData[currentCardIndex].word;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    /* ==========================================
+       UTILITY FUNCTIONS
+       ========================================== */
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function resetImage(imgElement, src, emoji) {
+        imgElement.src = src;
+        imgElement.style.display = 'block';
+        const fallback = imgElement.nextElementSibling;
+        if(fallback && fallback.classList.contains('img-fallback')) {
+            fallback.style.display = 'none';
+            fallback.innerText = emoji || "🖼️";
+        }
+    }
+
+    function showFeedback(isCorrect) {
+        const fb = document.getElementById('feedback-txt');
+        fb.innerText = isCorrect ? "CORRECT!" : "WRONG!";
+        fb.style.color = isCorrect ? "var(--fn-green)" : "var(--fn-red)";
+        fb.style.display = "block";
+        fb.classList.remove('pop', 'shake');
+        void fb.offsetWidth; // trigger reflow
+        fb.classList.add(isCorrect ? 'pop' : 'shake');
+        
+        setTimeout(() => { fb.style.display = "none"; }, 800);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    /* ==========================================
+       LOGIN LOGIC
+       ========================================== */
+    function submitLogin() {
+        const cd = document.getElementById('in-code').value.trim();
+        const c = document.getElementById('in-class').value.trim();
+        const num = document.getElementById('in-number').value.trim();
+        const nm = document.getElementById('in-name').value.trim();
+        const errorMsg = document.getElementById('login-error');
+
+        if(!cd || !c || !num || !nm) {
+            errorMsg.innerText = "Please fill in all fields!";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        if(cd.length !== 10) {
+            errorMsg.innerText = "Code must be exactly 10 characters!";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        errorMsg.style.display = "none";
+
+        player.code = cd;
+        player.class = c;
+        player.number = num;
+        player.name = nm;
+        
+        sound.click();
+        bgm.play().catch(e => console.log("BGM play started"));
+        
+        initReview();
+        showScreen('screen-review');
+    }
+
+    /* ==========================================
+       REVIEW CARDS LOGIC
+       ========================================== */
+    function initReview() {
+        currentCardIndex = 0;
+        updateCardUI();
+    }
+
+    function updateCardUI() {
+        const data = vocabData[currentCardIndex];
+        const img = document.getElementById('rev-img');
+        resetImage(img, data.img, data.emoji);
+        document.getElementById('rev-word').innerText = data.word;
+
+        if (currentCardIndex === vocabData.length - 1) {
+            document.getElementById('rev-nav-normal').style.display = 'none';
+            document.getElementById('rev-nav-end').style.display = 'flex';
+        } else {
+            document.getElementById('rev-nav-normal').style.display = 'flex';
+            document.getElementById('rev-nav-end').style.display = 'none';
+        }
+    }
+
+    function changeCard(dir) {
+        sound.click();
+        currentCardIndex += dir;
+        if(currentCardIndex < 0) currentCardIndex = 0;
+        if(currentCardIndex >= vocabData.length) currentCardIndex = vocabData.length - 1;
+        updateCardUI();
+    }
+
+    function replayCards() {
+        sound.click();
+        currentCardIndex = 0;
+        updateCardUI();
+    }
+
+    /* ==========================================
+       GAMEPLAY CORE
+       ========================================== */
+    function startLevel1Intro() {
+        sound.click();
+        showScreen('screen-l1-intro');
+    }
+    
+    function startLevel2Intro() {
+        sound.click();
+        showScreen('screen-l2-intro');
+    }
+
+    function startLevel(lvl) {
+        sound.click();
+        gameState.level = lvl;
+        gameState.currentIndex = 0;
+        gameState.score = 100;
+        gameState.time = 120;
+        gameState.correctCount = 0;
+        gameState.selectedOption = null;
+
+        if (lvl === 1) generateL1Questions();
+        else generateL2Questions();
+
+        updateTopBar();
+        renderQuestion();
+        
+        showScreen(`screen-l${lvl}-game`);
+        
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = setInterval(gameTick, 1000);
+    }
+
+    function gameTick() {
+        if (gameState.time > 0) {
+            gameState.time--;
+            // Time penalty: If they take longer than 80 seconds, penalize 0.5 points per second.
+            // This ensures finishing in <= 80 seconds keeps the perfect score (100).
+            if (gameState.time < 80) {
+                gameState.score -= 0.5; 
+            }
+            updateTopBar();
+        } else {
+            endLevel();
+        }
+    }
+
+    function updateTopBar() {
+        const lvl = gameState.level;
+        document.getElementById(`l${lvl}-progress`).innerText = `Q: ${gameState.currentIndex + 1}/20`;
+        document.getElementById(`l${lvl}-timer`).innerText = `⏱️ ${gameState.time}s`;
+        document.getElementById(`l${lvl}-score-display`).innerText = `Score: ${Math.max(0, Math.round(gameState.score))}`;
+    }
+
+    function selectOption(btn, value) {
+        sound.click();
+        const lvl = gameState.level;
+        document.querySelectorAll(`#l${lvl}-options .option-btn`).forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameState.selectedOption = value;
+        document.getElementById(`l${lvl}-send-btn`).disabled = false;
+    }
+
+    function submitAnswer(lvl) {
+        if(gameState.selectedOption === null) return;
+        
+        const q = gameState.questions[gameState.currentIndex];
+        const isCorrect = (gameState.selectedOption === q.ans);
+
+        if(isCorrect) {
+            sound.correct();
+            showFeedback(true);
+            gameState.correctCount++;
+        } else {
+            sound.wrong();
+            showFeedback(false);
+            gameState.score -= 5; // Penalty for wrong answer
+        }
+
+        gameState.currentIndex++;
+        gameState.selectedOption = null;
+        document.getElementById(`l${lvl}-send-btn`).disabled = true;
+
+        if (gameState.currentIndex >= 20) {
+            endLevel();
+        } else {
+            updateTopBar();
+            renderQuestion();
+        }
+    }
+
+    function endLevel() {
+        clearInterval(gameState.timerInterval);
+        const lvl = gameState.level;
+        
+        // Final score rounding and bounding
+        let finalScore = Math.round(gameState.score);
+        if (finalScore < 0) finalScore = 0;
+        if (finalScore > 100) finalScore = 100;
+        
+        // If they didn't finish 20 questions, apply harsh penalty for uncompleted questions
+        const uncompleted = 20 - gameState.currentIndex;
+        if(uncompleted > 0) {
+            finalScore -= (uncompleted * 20);
+            if (finalScore < 0) finalScore = 0;
+        }
+
+        scores[`l${lvl}`] = finalScore;
+
+        const passed = finalScore >= 75;
+        
+        document.getElementById(`l${lvl}-final-score`).innerText = finalScore;
+        document.getElementById(`l${lvl}-result-title`).innerText = passed ? "PASS!" : "FAIL!";
+        document.getElementById(`l${lvl}-result-title`).style.color = passed ? "var(--fn-green)" : "var(--fn-red)";
+        document.getElementById(`l${lvl}-result-msg`).innerText = passed 
+            ? "Excellent! You can move to the next level." 
+            : "You need 75 points to pass. Be faster and accurate!";
+        
+        const nextBtn = lvl === 1 ? document.getElementById('btn-next-l2') : document.getElementById('btn-final-done');
+        nextBtn.style.display = passed ? "inline-block" : "none";
+
+        if(passed) sound.win(); else sound.fail();
+
+        showScreen(`screen-l${lvl}-result`);
+    }
+
+    /* ==========================================
+       LEVEL 1 SPECIFICS
+       ========================================== */
+    function generateL1Questions() {
+        gameState.questions = [];
+        const alphabet = "abcdefghijklmnopqrstuvwxyz";
+        
+        for (let i = 0; i < 20; i++) {
+            // Pick random vocab
+            const v = vocabData[Math.floor(Math.random() * vocabData.length)];
+            let rawWord = v.word.replace(/^a\s+/, ''); // strip 'a ' for missing letter
+            
+            // Pick a letter to hide (skip spaces if any remain)
+            let charIdx = Math.floor(Math.random() * rawWord.length);
+            while(rawWord[charIdx] === ' ') {
+                charIdx = Math.floor(Math.random() * rawWord.length);
+            }
+            
+            const missingChar = rawWord[charIdx].toLowerCase();
+            const displayStr = rawWord.substring(0, charIdx) + '_' + rawWord.substring(charIdx + 1);
+            
+            // Generate options
+            let opts = [missingChar];
+            while(opts.length < 5) {
+                let r = alphabet[Math.floor(Math.random() * 26)];
+                if(!opts.includes(r)) opts.push(r);
+            }
+            shuffleArray(opts);
+
+            gameState.questions.push({
+                img: v.img,
+                emoji: v.emoji,
+                display: displayStr,
+                options: opts,
+                ans: missingChar
+            });
+        }
+    }
+
+    function renderQuestion() {
+        const lvl = gameState.level;
+        const q = gameState.questions[gameState.currentIndex];
+        
+        const imgEl = document.getElementById(`l${lvl}-img`);
+        resetImage(imgEl, q.img, q.emoji);
+        
+        document.getElementById(`l${lvl}-question`).innerText = q.display || q.q;
+        
+        const optContainer = document.getElementById(`l${lvl}-options`);
+        optContainer.innerHTML = '';
+        
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(btn, opt);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    /* ==========================================
+       LEVEL 2 SPECIFICS
+       ========================================== */
+    function generateL2Questions() {
+        gameState.questions = [];
+        // Clone and shuffle sentence data
+        let pool = [...sentenceData];
+        shuffleArray(pool);
+        
+        // Pick 20, if pool is smaller, duplicate some
+        while(pool.length < 20) pool = pool.concat([...sentenceData]);
+        
+        for (let i = 0; i < 20; i++) {
+            let q = { ...pool[i], options: [...pool[i].options] };
+            
+            // Dynamic pronoun replacement applied immediately to q, ans, and options
+            const matchedVocab = vocabData.find(v => v.img === q.img);
+            if (matchedVocab && matchedVocab.pronoun) {
+                const lower = matchedVocab.pronoun.toLowerCase();
+                const upper = lower.charAt(0).toUpperCase() + lower.slice(1);
+                
+                q.q = q.q.replace(/{pronoun}/g, lower).replace(/{Pronoun}/g, upper);
+                q.ans = q.ans.replace(/{pronoun}/g, lower).replace(/{Pronoun}/g, upper);
+                q.options = q.options.map(opt => opt.replace(/{pronoun}/g, lower).replace(/{Pronoun}/g, upper));
+            }
+
+            shuffleArray(q.options);
+            gameState.questions.push(q);
+        }
+    }
+
+    /* ==========================================
+       FINAL REPORT & API
+       ========================================== */
+    function showFinalScreen() {
+        sound.click();
+        const total = Math.round((scores.l1 + scores.l2) / 2);
+        
+        document.getElementById('final-name').innerText = player.name;
+        document.getElementById('final-l1').innerText = scores.l1;
+        document.getElementById('final-l2').innerText = scores.l2;
+        document.getElementById('final-total').innerText = total;
+        
+        showScreen('screen-final');
+    }
+
+    function resetGame() {
+        sound.click();
+        showScreen('screen-login');
+    }
+
+    function submitToGoogleSheets() {
+         if (isSubmitting) return; // Stop if already sending
+        isSubmitting = true;      // Lock the button
+        
+        sound.click();
+        const total = Math.round((scores.l1 + scores.l2) / 2);
+        
+        const payload = {
+            class: player.class,
+            number: player.number,
+            name: player.name,
+            code: player.code,
+            l1Score: scores.l1,
+            l2Score: scores.l2,
+            totalScore: total
+        };
+
+        if(GOOGLE_SHEETS_URL.trim() === "") {
+            console.log("No Google Sheets URL provided. Showing success screen anyway.");
+            showScreen('screen-thanks');
+            return;
+        }
+
+        // Send via fetch (no-cors mode used to prevent cross-origin issues in browsers)
+        fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            showScreen('screen-thanks');
+        }).catch(err => {
+            console.error("Error submitting:", err);
+            alert("Could not connect to server, but your score is saved locally!");
+            showScreen('screen-thanks');
+        });
+    }
+
+    // Initialize Audio context cleanly on first user interaction to bypass browser auto-play policies
+    document.body.addEventListener('click', () => {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+    }, { once: true });
+
+</script>
+</body>
+</html>
